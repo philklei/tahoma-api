@@ -35,19 +35,16 @@ class PyTest(TestCommand):
 setup(
     name='tahoma',
     version=tahoma.__version__,
-    url='http://github.com/philklei/tahoma/',
+    url='http://github.com/philklei/tahoma-api/',
     license='Apache Software License',
     author='Philip Kleimeyer',
-    tests_require=['pytest'],
     install_requires=[],
-    cmdclass={'test': PyTest},
     author_email='philip.kleimeyer@gmail.com',
     description='Tahoma Api - Python connect to Tahoma REST API',
     long_description=long_description,
     packages=['tahoma'],
     include_package_data=True,
     platforms='any',
-    test_suite='tahoma.test.test_tahoma',
     classifiers = [
         'Programming Language :: Python',
         'Development Status :: 4 - Beta',
@@ -60,7 +57,4 @@ setup(
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         ],
-    extras_require={
-        'testing': ['pytest'],
-    }
 )
