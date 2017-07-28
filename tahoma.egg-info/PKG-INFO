@@ -1,0 +1,24 @@
+Metadata-Version: 1.1
+Name: tahoma
+Version: 0.0.1
+Summary: Tahoma Api - Python connect to Tahoma REST API
+Home-page: http://github.com/philklei/tahoma/
+Author: Philip Kleimeyer
+Author-email: philip.kleimeyer@gmail.com
+License: Apache Software License
+Description: Tahoma API
+        --------
+        Connection to Tahoma REST API
+        
+        
+Platform: any
+Classifier: Programming Language :: Python
+Classifier: Development Status :: 4 - Beta
+Classifier: Natural Language :: Englisch
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
