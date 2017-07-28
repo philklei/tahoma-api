@@ -6,7 +6,7 @@ import codecs
 import os
 import sys
 
-import tahoma
+import tahoma_api
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -33,8 +33,8 @@ class PyTest(TestCommand):
         sys.exit(errcode)
 
 setup(
-    name='tahoma',
-    version=tahoma.__version__,
+    name='tahoma_api',
+    version=tahoma_api.__version__,
     url='http://github.com/philklei/tahoma-api/',
     license='Apache Software License',
     author='Philip Kleimeyer',
@@ -42,19 +42,7 @@ setup(
     author_email='philip.kleimeyer@gmail.com',
     description='Tahoma Api - Python connect to Tahoma REST API',
     long_description=long_description,
-    packages=['tahoma'],
+    packages=['tahoma_api'],
     include_package_data=True,
-    platforms='any',
-    classifiers = [
-        'Programming Language :: Python',
-        'Development Status :: 4 - Beta',
-        'Natural Language :: Englisch',
-        'Environment :: Web Environment',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: OS Independent',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Software Development :: Libraries :: Application Frameworks',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        ],
+    platforms='any'
 )

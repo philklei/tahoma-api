@@ -1,8 +1,0 @@
-setup.py
-tahoma/__init__.py
-tahoma/tahoma_api.py
-tahoma.egg-info/PKG-INFO
-tahoma.egg-info/SOURCES.txt
-tahoma.egg-info/dependency_links.txt
-tahoma.egg-info/requires.txt
-tahoma.egg-info/top_level.txt
