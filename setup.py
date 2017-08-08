@@ -4,7 +4,6 @@ Install TahomaApi
 
 from os.path import exists
 from setuptools import setup, find_packages
-from tahoma_api import __version__
 import codecs
 import os
 import re
