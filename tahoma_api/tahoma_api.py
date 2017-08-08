@@ -7,11 +7,8 @@ Connection to Somfy Tahoma REST API
 import json
 import requests
 
-from exceptions import Exception
-
 BASE_URL = 'https://www.tahomalink.com/enduser-mobile-web/externalAPI/json/'
 BASE_HEADERS = {'User-Agent': 'mine'}
-
 
 class TahomaApi:
     """Connection to Tahoma API."""
