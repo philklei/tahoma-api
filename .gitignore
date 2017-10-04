@@ -1,1 +1,6 @@
 dist/*
+*.pyc
+__pycache__/
+.eggs/
+.DS_Store
+*.egg-info/
