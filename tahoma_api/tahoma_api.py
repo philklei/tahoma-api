@@ -618,8 +618,10 @@ class TahomaApi:
 
         for device_states in result['devices']:
             device = self.__devices[device_states['deviceURL']]
-
-            device.set_active_states(device_states['states'])
+            try:
+                device.set_active_states(device_states['states'])
+            except KeyError:
+                pass
 
     def refresh_all_states(self):
         """Update all states."""
@@ -643,6 +645,7 @@ class Device:
         """Initalize the Tahoma Device."""
         self.__protocol = protocol
         self.__raw_data = dataInput
+        self.__active_states = {}
 
         debug_output = json.dumps(dataInput)
 
@@ -708,8 +711,6 @@ class Device:
 
             if 'states' not in dataInput.keys():
                 raise ValueError("No active states given.")
-
-            self.__active_states = {}
 
             for state in dataInput['states']:
 
