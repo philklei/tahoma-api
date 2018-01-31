@@ -134,10 +134,9 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(BASE_URL + 'setup',
+        request = requests.get(BASE_URL + 'getSetup',
                                headers=header,
                                timeout=10)
-
         if request.status_code != 200:
             self.__logged_in = False
             self.login()
@@ -146,6 +145,7 @@ class TahomaApi:
 
         try:
             result = request.json()
+            print(result)
         except ValueError as error:
             raise Exception(
                 "Not a valid result for getSetup, " +
@@ -706,24 +706,24 @@ class Device:
 
         if len(self.state_definitions) > 0:
 
-            if 'states' not in dataInput.keys():
-                raise ValueError("No active states given.")
+            if 'states' in dataInput.keys():
+                #raise ValueError("No active states given.")
 
-            self.__active_states = {}
+                self.__active_states = {}
 
-            for state in dataInput['states']:
+                for state in dataInput['states']:
 
-                if state['name'] not in self.state_definitions:
-                    raise ValueError(
-                        "Active state '" + state['name'] +
-                        "' has not been defined: " + debug_output)
+                    if state['name'] not in self.state_definitions:
+                        raise ValueError(
+                            "Active state '" + state['name'] +
+                            "' has not been defined: " + debug_output)
 
-                if state['name'] in self.__active_states.keys():
-                    raise ValueError(
-                        "Active state '" + state['name'] +
-                        "' has been double defined: " + debug_output)
+                    if state['name'] in self.__active_states.keys():
+                        raise ValueError(
+                            "Active state '" + state['name'] +
+                            "' has been double defined: " + debug_output)
 
-                self.__active_states[state['name']] = state['value']
+                    self.__active_states[state['name']] = state['value']
 
     @property
     def label(self):
