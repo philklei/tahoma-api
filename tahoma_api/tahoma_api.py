@@ -134,7 +134,7 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(BASE_URL + 'getSetup',
+        request = requests.get(BASE_URL + 'setup',
                                headers=header,
                                timeout=10)
 
