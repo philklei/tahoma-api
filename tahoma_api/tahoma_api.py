@@ -909,6 +909,7 @@ class ActionGroup:
         """Initalize the Tahoma Action Group."""
         self.__last_update = data['lastUpdateTime']
         self.__name = data['label']
+        self.__oid  = data['oid']
 
         self.__actions = []
 
@@ -924,6 +925,11 @@ class ActionGroup:
     def name(self):
         """Get name of action group."""
         return self.__name
+    
+    @property
+    def oid(self):
+        """Get oid of the action group."""
+        return self.__oid
 
     @property
     def actions(self):
