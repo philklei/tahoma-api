@@ -712,7 +712,7 @@ class Device:
             if 'states' in dataInput.keys():
                 #raise ValueError("No active states given.")
 
-            for state in dataInput['states']:
+                for state in dataInput['states']:
 
                     if state['name'] not in self.state_definitions:
                         raise ValueError(
