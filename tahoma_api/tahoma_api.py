@@ -908,7 +908,10 @@ class ActionGroup:
 
     def __init__(self, data):
         """Initalize the Tahoma Action Group."""
-        self.__last_update = data['lastUpdateTime']
+        if hasattr(data, 'lastUpdateTime'):
+            self.__last_update = data['lastUpdateTime']
+        else:
+            self.__last_update = -1
         self.__name = data['label']
         self.__oid  = data['oid']
 
