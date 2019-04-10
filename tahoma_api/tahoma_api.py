@@ -46,7 +46,7 @@ class TahomaApi:
             raise Exception(
                 "Not a valid result for login, " +
                 "protocol error: " + request.status_code + ' - ' +
-                request.reason + "(" + error + ")")
+                request.reason + "(" + str(error) + ")")
 
         if 'error' in result.keys():
             raise Exception("Could not login: " + result['error'])
