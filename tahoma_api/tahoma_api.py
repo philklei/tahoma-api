@@ -6,8 +6,9 @@ Connection to Somfy Tahoma REST API
 
 import json
 import requests
+import urllib.parse
 
-BASE_URL = 'https://www.tahomalink.com/enduser-mobile-web/externalAPI/json/'
+BASE_URL = 'https://tahomalink.com/enduser-mobile-web/enduserAPI/' # /doc for API doc
 BASE_HEADERS = {'User-Agent': 'mine'}
 
 class TahomaApi:
@@ -25,6 +26,7 @@ class TahomaApi:
         self.__location = {}
         self.__cookie = ""
         self.__logged_in = False
+        self.__events_registration = None
         self.__username = userName
         self.__password = userPassword
         self.login()
@@ -95,7 +97,7 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(BASE_URL + 'getEndUser',
+        request = requests.get(BASE_URL + 'enduser/mainAccount',
                                headers=header,
                                timeout=10)
 
@@ -111,7 +113,7 @@ class TahomaApi:
             raise Exception(
                 "Not a valid result for getEndUser, protocol error!")
 
-        return result['endUser']
+        return result
 
     def get_setup(self):
         """Load the setup from the server.
@@ -134,7 +136,7 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(BASE_URL + 'getSetup',
+        request = requests.get(BASE_URL + 'setup',
                                headers=header,
                                timeout=10)
         if request.status_code != 200:
@@ -157,17 +159,16 @@ class TahomaApi:
         """Internal method which process the results from the server."""
         self.__devices = {}
 
-        if ('setup' not in result.keys() or
-                'devices' not in result['setup'].keys()):
+        if ('devices' not in result.keys()):
             raise Exception(
                 "Did not find device definition.")
 
-        for device_data in result['setup']['devices']:
+        for device_data in result['devices']:
             device = Device(self, device_data)
             self.__devices[device.url] = device
 
-        self.__location = result['setup']['location']
-        self.__gateway = result['setup']['gateways']
+        self.__location = result['location']
+        self.__gateway = result['gateways']
 
     @property
     def location(self):
@@ -299,6 +300,7 @@ class TahomaApi:
         """
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
+        header['Content-Type'] = 'application/json'
 
         actions_serialized = []
 
@@ -309,8 +311,9 @@ class TahomaApi:
         json_data = json.dumps(data, indent=None, sort_keys=True)
 
         request = requests.post(
-            BASE_URL + "apply",
-            headers=header, data=json_data,
+            BASE_URL + "exec/apply",
+            headers=header, 
+            data=json_data,
             timeout=10)
 
         if request.status_code != 200:
@@ -361,7 +364,17 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.post(BASE_URL + 'getEvents',
+        if self.__events_registration is None:
+            register_response = requests.post(BASE_URL + 'events/register',
+                                    headers=header,
+                                    timeout=10)
+
+            self.__events_registration = json.loads(register_response.text)["id"]
+            if register_response.status_code != 200:
+                self.__events_registration = None
+                self.get_events()
+
+        request = requests.post(BASE_URL + 'events/' + self.__events_registration + '/fetch',
                                 headers=header,
                                 timeout=10)
 
@@ -422,7 +435,7 @@ class TahomaApi:
 
         request = requests.get(
             BASE_URL +
-            'getCurrentExecutions',
+            'exec/current',
             headers=header,
             timeout=10)
 
@@ -439,12 +452,9 @@ class TahomaApi:
                 "Not a valid result for" +
                 "get_current_executions, protocol error: " + error)
 
-        if 'executions' not in result.keys():
-            return None
-
         executions = []
 
-        for execution_data in result['executions']:
+        for execution_data in result:
             exe = Execution(execution_data)
             executions.append(exe)
 
@@ -455,8 +465,10 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(BASE_URL + 'getHistory', headers=header,
-                               timeout=10)
+        request = requests.get(
+            BASE_URL + 'history', 
+            headers=header,
+            timeout=10)
 
         if request.status_code != 200:
             self.__logged_in = False
@@ -471,7 +483,7 @@ class TahomaApi:
                 "Not a valid result for" +
                 "get_history, protocol error: " + error)
 
-        return result['history']
+        return result
 
     def cancel_all_executions(self):
         """Cancel all running executions.
@@ -481,7 +493,7 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(BASE_URL + 'cancelExecutions',
+        request = requests.delete(BASE_URL + 'exec/current/setup',
                                headers=header,
                                timeout=10)
 
@@ -499,7 +511,7 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(BASE_URL + "getActionGroups",
+        request = requests.get(BASE_URL + "actionGroups",
                                headers=header,
                                timeout=10)
 
@@ -515,12 +527,9 @@ class TahomaApi:
             raise Exception(
                 "get_action_groups: Not a valid result for ")
 
-        if 'actionGroups' not in result.keys():
-            return None
-
         groups = []
 
-        for group_data in result['actionGroups']:
+        for group_data in result:
             group = ActionGroup(group_data)
             groups.append(group)
 
@@ -531,9 +540,8 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(
-            BASE_URL + 'launchActionGroup?oid=' +
-            action_id,
+        request = requests.post(
+            BASE_URL + 'exec/' + action_id,
             headers=header,
             timeout=10)
 
@@ -552,74 +560,33 @@ class TahomaApi:
                 request.status_code + ' - ' + request.reason +
                 " (" + error + ")")
 
-        if 'actionGroup' not in result.keys():
+        if 'execId' not in result.keys():
             raise Exception(
                 "Could not launch action" +
                 "group, missing execId.")
 
-        return result['actionGroup'][0]['execId']
+        return result['execId']
 
     def get_states(self, devices):
         """Get States of Devices."""
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        json_data = self._create_get_state_request(devices)
-
-        request = requests.post(
-            BASE_URL + 'getStates',
-            headers=header,
-            data=json_data,
-            timeout=10)
-
-        if request.status_code != 200:
-            self.__logged_in = False
-            self.login()
-            self.get_states(devices)
-            return
-
-        try:
-            result = request.json()
-        except ValueError as error:
-            raise Exception(
-                "Not a valid result for" +
-                "getStates, protocol error:" + error)
-
-        self._get_states(result)
-
-    def _create_get_state_request(self, given_devices):
-        """Create state request."""
-        dev_list = []
-
-        if isinstance(given_devices, list):
-            devices = given_devices
-        else:
-            devices = []
-            for dev_name, item in self.__devices.items():
-                if item:
-                    devices.append(self.__devices[dev_name])
-
         for device in devices:
-            states = []
-
-            for state_name in sorted(device.active_states.keys()):
-                states.append({'name': state_name})
-
-            dev_list.append({'deviceURL': device.url, 'states': states})
-
-        return json.dumps(
-            dev_list, indent=None,
-            sort_keys=True, separators=(',', ': '))
-
-    def _get_states(self, result):
-        """Get states of devices."""
-        if 'devices' not in result.keys():
-            return
-
-        for device_states in result['devices']:
-            device = self.__devices[device_states['deviceURL']]
+            path = 'setup/devices/' + urllib.parse.quote_plus(device.url) + '/states'
+            states_response = requests.get(
+                BASE_URL + path,
+                headers=header,
+                timeout=10)    
             try:
-                device.set_active_states(device_states['states'])
+                result = states_response.json()
+            except ValueError as error:
+                raise Exception(
+                    "Not a valid result for" +
+                    "setup/devices/..../status, protocol error:" + error)
+            
+            try:
+                self.__devices[device.url].set_active_states(result)
             except KeyError:
                 pass
 
@@ -628,8 +595,10 @@ class TahomaApi:
         header = BASE_HEADERS.copy()
         header['Cookie'] = self.__cookie
 
-        request = requests.get(
-            BASE_URL + "refreshAllStates", headers=header, timeout=10)
+        request = requests.post(
+            BASE_URL + "setup/devices/states/refresh", 
+            headers=header, 
+            timeout=10)
 
         if request.status_code != 200:
             self.__logged_in = False
@@ -947,14 +916,16 @@ class Event:
     @staticmethod
     def factory(data):
         """Tahoma Event factory."""
-        if data['name'] is "DeviceStateChangedEvent":
+        if data['name'] == "DeviceStateChangedEvent":
             return DeviceStateChangedEvent(data)
-        elif data['name'] is "ExecutionStateChangedEvent":
+        elif data['name'] == "ExecutionStateChangedEvent":
             return ExecutionStateChangedEvent(data)
-        elif data['name'] is "CommandExecutionStateChangedEvent":
+        elif data['name'] == "CommandExecutionStateChangedEvent":
             return CommandExecutionStateChangedEvent(data)
         else:
-            raise ValueError("Unknown event '" + data['name'] + "' occurred.")
+            print("Unknown event '" + data['name'] + "' occurred.")
+            #raise ValueError("Unknown event '" + data['name'] + "' occurred.")
+            return None
 
 
 class DeviceStateChangedEvent(Event):
@@ -1080,11 +1051,15 @@ class EventState():
                 raise ValueError("Unknown state init " + str(state))
         elif isinstance(state, str):
             # more states are missing
-            if state is "NOT_TRANSMITTED":
+            if state == "NOT_TRANSMITTED":
                 self.__state = EventState.NotTransmitted
-            elif state is "COMPLETED":
+            elif state == "TRANSMITTED":
+                self.__state = EventState.Transmitted
+            elif state == "IN_PROGRESS":
+                self.__state = EventState.InProgress                             
+            elif state == "COMPLETED":
                 self.__state = EventState.Completed
-            elif state is "FAILED":
+            elif state == "FAILED":
                 self.__state = EventState.Failed
             else:
                 raise ValueError("Unknown state init '" + state + "'")
@@ -1119,7 +1094,8 @@ class EventState():
     Completed = 4
     Failed = 5
     Unknown = 6
-
+    Transmitted = 11
+    InProgress = 12
 
 class Execution:
     """Represents an Tahoma Execution."""
