@@ -1,3 +1,3 @@
 from .tahoma_api import TahomaApi, Action, Device, Command, ActionGroup, Event, Execution
 
-__version__ = '0.0.14'
+__version__ = '0.0.16'
