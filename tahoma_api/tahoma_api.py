@@ -672,6 +672,10 @@ class Device:
 
                 self.__definitions['states'].append(state['qualifiedName'])
 
+        self.__command_def = dataInput['definition']['commands']
+
+        self.__states_def = dataInput['definition']['states']
+        
         # Parse active states
 
         # calculate the amount of known active states
