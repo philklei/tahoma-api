@@ -29,6 +29,7 @@ class TahomaApi:
         self.__events_registration = None
         self.__username = userName
         self.__password = userPassword
+        self.__setup = None
         self.login()
 
     def login(self):
@@ -147,7 +148,7 @@ class TahomaApi:
 
         try:
             result = request.json()
-            print(result)
+            self.__setup = result
         except ValueError as error:
             raise Exception(
                 "Not a valid result for getSetup, " +
@@ -312,7 +313,7 @@ class TahomaApi:
 
         request = requests.post(
             BASE_URL + "exec/apply",
-            headers=header, 
+            headers=header,
             data=json_data,
             timeout=10)
 
@@ -466,7 +467,7 @@ class TahomaApi:
         header['Cookie'] = self.__cookie
 
         request = requests.get(
-            BASE_URL + 'history', 
+            BASE_URL + 'history',
             headers=header,
             timeout=10)
 
@@ -577,14 +578,14 @@ class TahomaApi:
             states_response = requests.get(
                 BASE_URL + path,
                 headers=header,
-                timeout=10)    
+                timeout=10)
             try:
                 result = states_response.json()
             except ValueError as error:
                 raise Exception(
                     "Not a valid result for" +
                     "setup/devices/..../status, protocol error:" + error)
-            
+
             try:
                 self.__devices[device.url].set_active_states(result)
             except KeyError:
@@ -596,8 +597,8 @@ class TahomaApi:
         header['Cookie'] = self.__cookie
 
         request = requests.post(
-            BASE_URL + "setup/devices/states/refresh", 
-            headers=header, 
+            BASE_URL + "setup/devices/states/refresh",
+            headers=header,
             timeout=10)
 
         if request.status_code != 200:
@@ -632,6 +633,16 @@ class Device:
             raise ValueError('No control URL: ' + debug_output)
 
         self.__url = dataInput['deviceURL']
+
+        if 'uiClass' not in dataInput.keys():
+            raise ValueError('No ui Class: ' + debug_output)
+
+        self.__uiclass = dataInput['uiClass']
+
+        if 'widget' not in dataInput.keys():
+            raise ValueError('No widget: ' + debug_output)
+
+        self.__widget = dataInput['widget']
 
         # Parse definitions
 
@@ -747,6 +758,16 @@ class Device:
     def url(self):
         """Get device url."""
         return self.__url
+
+    @property
+    def uiclass(self):
+        """Get device ui class"""
+        return self.__uiclass
+
+    @property
+    def widget(self):
+        """Get device widget type"""
+        return self.__widget
 
     # def execute_action(self, action):
     #    """Exceute action."""
