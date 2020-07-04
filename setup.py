@@ -31,6 +31,7 @@ setup(
     install_requires=['requests>=2.0'],
     author_email='philip.kleimeyer@gmail.com',
     description='Tahoma Api - Python connect to Tahoma REST API',
+    long_description_content_type='text/markdown',
     long_description=open('README.rst').read() if exists("README.rst") else "",
     packages=find_packages(),
     keywords='tahoma somfy io covers senors api',

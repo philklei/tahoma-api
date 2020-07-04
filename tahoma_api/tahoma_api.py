@@ -698,17 +698,9 @@ class Device:
 
                 for state in dataInput['states']:
 
-                    if state['name'] not in self.state_definitions:
-                        raise ValueError(
-                            "Active state '" + state['name'] +
-                            "' has not been defined: " + debug_output)
-
-                    if state['name'] in self.__active_states.keys():
-                        raise ValueError(
-                            "Active state '" + state['name'] +
-                            "' has been double defined: " + debug_output)
-
-                    self.__active_states[state['name']] = state['value']
+                    if (state['name'] in self.state_definitions and 
+                       state['name'] not in self.__active_states.keys()):
+                        self.__active_states[state['name']] = state['value']
 
     @property
     def label(self):
