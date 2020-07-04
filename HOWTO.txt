@@ -1,0 +1,5 @@
+Neue Version veröffentlichen
+python setup.py sdist
+
+Upload zu pypi
+python -m twine upload dist/tahoma_api-x.x.x.tar.gz
